@@ -1,10 +1,14 @@
-'use client';
-import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useProductStore } from '@/store/productStore';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+"use client";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useProductStore } from "@/store/productStore";
+import { useCartStore } from "@/store/cartStore";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input"; // Assuming you have this from ShadCN
+import { useRouter } from "next/navigation";
+import { toast } from 'sonner';
 
 interface Product {
   id: string;
@@ -18,8 +22,11 @@ interface Product {
 export default function ProductDetailPage() {
   const { id } = useParams();
   const selectedProduct = useProductStore((state) => state.selectedProduct);
+  const addToCart = useCartStore((state) => state.addToCart);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [quantity, setQuantity] = useState(1);
+  const router = useRouter();
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -28,7 +35,9 @@ export default function ProductDetailPage() {
         setLoading(false);
       } else {
         try {
-          const res = await fetch(`https://api.freeapi.app/api/v1/public/randomproducts/${id}`);
+          const res = await fetch(
+            `https://api.freeapi.app/api/v1/public/randomproducts/${id}`
+          );
           const json = await res.json();
           if (json.success && json.data) {
             setProduct(json.data);
@@ -36,7 +45,7 @@ export default function ProductDetailPage() {
             setProduct(null);
           }
         } catch (err) {
-          console.error('Failed to fetch product:', err);
+          console.error("Failed to fetch product:", err);
           setProduct(null);
         } finally {
           setLoading(false);
@@ -46,6 +55,13 @@ export default function ProductDetailPage() {
 
     loadProduct();
   }, [id, selectedProduct]);
+
+  const handleQuantityChange = (value: string) => {
+    const num = parseInt(value);
+    if (!isNaN(num) && num > 0 && num < 100) {
+      setQuantity(num);
+    }
+  };
 
   if (loading) return <div className="text-center mt-12">Loading...</div>;
 
@@ -58,9 +74,9 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12">
+    <div className="max-w-5xl mx-auto px-6 py-12">
       <div className="grid md:grid-cols-2 gap-10 items-start">
-        {/* Left: Main Thumbnail */}
+        {/* Left: Images */}
         <div>
           <img
             src={product.thumbnail}
@@ -79,23 +95,81 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
-        {/* Right: Product Info */}
+        {/* Right: Info */}
         <Card className="shadow-xl border rounded-2xl">
           <CardContent className="p-6 space-y-4">
             <Badge variant="outline" className="uppercase text-xs font-medium">
               {product.category}
             </Badge>
 
-            <h1 className="text-3xl font-bold text-gray-900">{product.title}</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {product.title}
+            </h1>
 
-            <p className="text-2xl text-green-600 font-semibold">${product.price}</p>
-
-            <p className="text-gray-700 text-sm">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse euismod nisi in
-              sem volutpat, nec tincidunt sapien dignissim.
+            <p className="text-2xl text-green-600 font-semibold">
+              ${product.price}
             </p>
 
-            <Button className="w-full mt-4">Add to Cart</Button>
+            <p className="text-gray-700 text-sm leading-relaxed">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              Suspendisse euismod nisi in sem volutpat, nec tincidunt sapien
+              dignissim.
+            </p>
+
+            {/* Quantity Selector */}
+            <div className="flex items-center gap-2 mt-4">
+              <label htmlFor="qty" className="text-sm text-gray-600">
+                Quantity:
+              </label>
+              <Input
+                id="qty"
+                type="number"
+                min={1}
+                max={99}
+                value={quantity}
+                onChange={(e) => handleQuantityChange(e.target.value)}
+                className="w-20"
+              />
+            </div>
+
+            {/* Add to Cart */}
+            <Button
+              className="w-full mt-4"
+              onClick={() => {
+                addToCart({
+                  id: product.id,
+                  title: product.title,
+                  price: product.price,
+                  thumbnail: product.thumbnail,
+                  quantity: quantity,
+                });
+                toast.success("Added to cart", {
+                  description: `${product.title} x${quantity}`,
+                  action: {
+                    label: "Go to Cart",
+                    onClick: () => router.push("/cart"),
+                  },
+                });
+              }}
+            >
+              Add to Cart
+            </Button>
+            <Button
+              className="w-full mt-2"
+              variant="secondary"
+              onClick={() => {
+                addToCart({
+                  id: product.id,
+                  title: product.title,
+                  price: product.price,
+                  thumbnail: product.thumbnail,
+                  quantity,
+                });
+                router.push("/checkout");
+              }}
+            >
+              Buy Now
+            </Button>
           </CardContent>
         </Card>
       </div>

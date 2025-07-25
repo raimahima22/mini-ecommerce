@@ -12,6 +12,7 @@ export default function Navbar() {
             <Image
               src={logo}
               alt="Shop Smart Logo"
+              width={48}
               height={48}
               style={{ width: 'auto', height: '100%', objectFit: 'contain' }}
               priority
