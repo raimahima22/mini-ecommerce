@@ -4,12 +4,14 @@ import { useCartStore } from "@/store/cartStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useCheckoutStore } from "@/store/checkoutStore";
 
 export default function CartPage() {
   const { cart, updateQuantity, removeFromCart } = useCartStore();
   const router = useRouter();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const { setItems } = useCheckoutStore();
 
   const toggleSelectItem = (id: string) => {
     setSelectedItems((prev) =>
@@ -19,13 +21,24 @@ export default function CartPage() {
 
   const isSelected = (id: string) => selectedItems.includes(id);
 
+  const toggleSelectAll = () => {
+    if (selectedItems.length === cart.length) {
+      setSelectedItems([]); // Unselect all
+    } else {
+      setSelectedItems(cart.map((item) => item.id)); // Select all
+    }
+  };
+
   const total = cart
     .filter((item) => isSelected(item.id))
     .reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const handleCheckout = () => {
     if (selectedItems.length === 0) return;
-    // You can also pass selectedItems via router state or localStorage if needed
+    const selectedProducts = cart.filter((item) =>
+      selectedItems.includes(item.id)
+    );
+    setItems(selectedProducts);
     router.push("/checkout");
   };
 
@@ -37,6 +50,16 @@ export default function CartPage() {
         <p className="text-gray-500">Your cart is empty.</p>
       ) : (
         <>
+          <div className="flex items-center gap-2 mb-4">
+            <input
+              type="checkbox"
+              checked={selectedItems.length === cart.length}
+              onChange={toggleSelectAll}
+              className="scale-125"
+            />
+            <label className="text-sm font-medium">Select All</label>
+          </div>
+
           {cart.map((item) => (
             <div
               key={item.id}
@@ -46,6 +69,7 @@ export default function CartPage() {
                 type="checkbox"
                 checked={isSelected(item.id)}
                 onChange={() => toggleSelectItem(item.id)}
+                className="scale-125"
               />
               <img
                 src={item.thumbnail}
@@ -77,9 +101,7 @@ export default function CartPage() {
           ))}
 
           <div className="flex justify-between items-center pt-6 border-t">
-            <p className="text-xl font-semibold">
-              Total: ${total.toFixed(2)}
-            </p>
+            <p className="text-xl font-semibold">Total: ${total.toFixed(2)}</p>
             <Button
               disabled={selectedItems.length === 0}
               onClick={handleCheckout}

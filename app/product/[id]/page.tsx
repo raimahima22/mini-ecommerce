@@ -1,14 +1,15 @@
-"use client";
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useProductStore } from "@/store/productStore";
-import { useCartStore } from "@/store/cartStore";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input"; // Assuming you have this from ShadCN
-import { useRouter } from "next/navigation";
+'use client';
+
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useProductStore } from '@/store/productStore';
+import { useCartStore } from '@/store/cartStore';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { useCheckoutStore } from '@/store/checkoutStore';
 
 interface Product {
   id: string;
@@ -21,12 +22,14 @@ interface Product {
 
 export default function ProductDetailPage() {
   const { id } = useParams();
+  const router = useRouter();
   const selectedProduct = useProductStore((state) => state.selectedProduct);
   const addToCart = useCartStore((state) => state.addToCart);
+  const { setItems } = useCheckoutStore();
+
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
-  const router = useRouter();
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -45,7 +48,7 @@ export default function ProductDetailPage() {
             setProduct(null);
           }
         } catch (err) {
-          console.error("Failed to fetch product:", err);
+          console.error('Failed to fetch product:', err);
           setProduct(null);
         } finally {
           setLoading(false);
@@ -61,6 +64,21 @@ export default function ProductDetailPage() {
     if (!isNaN(num) && num > 0 && num < 100) {
       setQuantity(num);
     }
+  };
+
+  const handleBuyNow = () => {
+    if (!product) return;
+
+    const buyNowProduct = {
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      quantity: quantity,
+      thumbnail: product.thumbnail,
+    };
+
+    setItems([buyNowProduct]); // ✅ Only this product is selected
+    router.push('/checkout');
   };
 
   if (loading) return <div className="text-center mt-12">Loading...</div>;
@@ -102,18 +120,13 @@ export default function ProductDetailPage() {
               {product.category}
             </Badge>
 
-            <h1 className="text-3xl font-bold text-gray-900">
-              {product.title}
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-900">{product.title}</h1>
 
-            <p className="text-2xl text-green-600 font-semibold">
-              ${product.price}
-            </p>
+            <p className="text-2xl text-green-600 font-semibold">${product.price}</p>
 
             <p className="text-gray-700 text-sm leading-relaxed">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-              Suspendisse euismod nisi in sem volutpat, nec tincidunt sapien
-              dignissim.
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse euismod nisi in sem
+              volutpat, nec tincidunt sapien dignissim.
             </p>
 
             {/* Quantity Selector */}
@@ -141,33 +154,22 @@ export default function ProductDetailPage() {
                   title: product.title,
                   price: product.price,
                   thumbnail: product.thumbnail,
-                  quantity: quantity,
+                  quantity,
                 });
-                toast.success("Added to cart", {
+                toast.success('Added to cart', {
                   description: `${product.title} x${quantity}`,
                   action: {
-                    label: "Go to Cart",
-                    onClick: () => router.push("/cart"),
+                    label: 'Go to Cart',
+                    onClick: () => router.push('/cart'),
                   },
                 });
               }}
             >
               Add to Cart
             </Button>
-            <Button
-              className="w-full mt-2"
-              variant="secondary"
-              onClick={() => {
-                addToCart({
-                  id: product.id,
-                  title: product.title,
-                  price: product.price,
-                  thumbnail: product.thumbnail,
-                  quantity,
-                });
-                router.push("/checkout");
-              }}
-            >
+
+            {/* ✅ Buy Now Button */}
+            <Button className="w-full mt-2" variant="secondary" onClick={handleBuyNow}>
               Buy Now
             </Button>
           </CardContent>

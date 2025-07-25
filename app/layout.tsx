@@ -20,13 +20,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={inter.className}
-      >
-        <Navbar></Navbar>
-        <Toaster position="top-right" richColors/>
-        {children}
-        <Footer></Footer>
+      <body className={`${inter.className} flex flex-col min-h-screen`}>
+        <Navbar />
+        <Toaster position="top-right" richColors />
+        
+        {/* Main content should grow to push footer down */}
+        <main className="flex-grow">
+          {children}
+        </main>
+
+        <Footer />
       </body>
     </html>
   );
