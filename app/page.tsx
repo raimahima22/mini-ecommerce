@@ -1,103 +1,126 @@
-import Image from "next/image";
+'use client';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useProductStore } from '@/store/productStore';
+import HeroSection from '@/components/HeroSection';
+
+interface Product {
+  id: string;
+  title: string;
+  price: number;
+  thumbnail: string;
+  category: string;
+  images: string[];
+}
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const setSelectedProduct = useProductStore((state) => state.setSelectedProduct);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch(
+          'https://api.freeapi.app/api/v1/public/randomproducts?page=1&limit=40&inc=category%252Cprice%252Cthumbnail%252Cimages%252Ctitle%252Cid'
+        );
+        const json = await res.json();
+        if (!json.success || !json.data || !Array.isArray(json.data.data)) {
+          throw new Error('Invalid response format.');
+        }
+        setProducts(json.data.data);
+      } catch (err) {
+        console.error('Failed to fetch products:', err);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Derive unique categories
+  const categories = ['All', ...Array.from(new Set(products.map((p) => p.category || 'Other')))];
+
+  // Filter products based on selected category
+  const filteredProducts =
+    selectedCategory === 'All'
+      ? products
+      : products.filter((product) => product.category === selectedCategory);
+
+  return (
+    <main className="px-4 md:px-12 py-8 max-w-7xl mx-auto">
+      <HeroSection />
+
+      <div className="flex flex-col md:flex-row gap-8 mt-12">
+        {/* Category Sidebar */}
+        <aside className="md:w-1/4">
+          <div className="bg-white shadow-md rounded-xl p-4 sticky top-6">
+            <h2 className="text-lg font-semibold mb-4 text-gray-800">Categories</h2>
+            <ul className="space-y-2">
+              {categories.map((category) => (
+                <li key={category}>
+                  <button
+                    className={`w-full text-left px-4 py-2 rounded-md text-sm font-medium transition ${
+                      selectedCategory === category
+                        ? 'bg-pink-600 text-white'
+                        : 'bg-gray-100 text-gray-800 hover:bg-pink-100'
+                    }`}
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    {category}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </aside>
+
+        {/* Product Display */}
+        <section className="md:w-3/4">
+          <h1 className="text-3xl font-bold mb-6 text-gray-800">
+            {selectedCategory === 'All' ? 'All Products' : selectedCategory}
+          </h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredProducts.map((product) => (
+              <Link
+                href={`/product/${product.id}`}
+                key={product.id}
+                onClick={() => setSelectedProduct(product)}
+              >
+                <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border overflow-hidden group">
+                  <img
+                    src={product.thumbnail}
+                    alt={product.title}
+                    className="w-full h-60 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="p-4">
+                    <h3
+                      className="text-lg font-medium text-gray-900 truncate"
+                      title={product.title}
+                    >
+                      {product.title}
+                    </h3>
+                    <div className="flex gap-2 mt-2 mb-4">
+                      {product.images.slice(0, 3).map((img, index) => (
+                        <img
+                          key={index}
+                          src={img}
+                          alt={`product-${product.id}-img-${index}`}
+                          className="w-10 h-10 object-cover rounded-md border"
+                          onError={(e) =>
+                            ((e.target as HTMLImageElement).src =
+                              'https://via.placeholder.com/50')
+                          }
+                        />
+                      ))}
+                    </div>
+                    <p className="text-xl font-bold text-green-600">${product.price}</p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      </div>
+    </main>
   );
 }
