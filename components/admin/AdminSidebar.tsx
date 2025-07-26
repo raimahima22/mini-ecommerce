@@ -12,12 +12,14 @@ import {
   Package,
   ShoppingCart,
   LogOut,
+  Users,
 } from "lucide-react"; // Add Lucide icons
 
 const navItems = [
   { label: "Dashboard", href: "/admin/dashboard", icon: <LayoutDashboard size={18} /> },
   { label: "Products", href: "/admin/products", icon: <Package size={18} /> },
   { label: "Orders", href: "/admin/orders", icon: <ShoppingCart size={18} /> },
+   { label: "Customer", href: "/admin/customer", icon: <Users size={18} /> },
 ];
 
 export default function AdminSidebar() {

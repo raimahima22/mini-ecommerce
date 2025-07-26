@@ -86,6 +86,7 @@ export default function ProductsPage() {
         <table className="min-w-full table-auto">
           <thead className="bg-gray-100 text-gray-700 uppercase text-sm leading-normal border-b border-gray-300">
             <tr>
+                <th className="py-3 px-6 text-left">ID</th>
               <th className="py-3 px-6 text-left">Product</th>
               <th className="py-3 px-6 text-left">Category</th>
               <th className="py-3 px-6 text-left">Price</th>
@@ -95,6 +96,7 @@ export default function ProductsPage() {
           <tbody className="text-gray-700 text-sm">
             {paginatedProducts.map((product) => (
               <tr key={product.id} className="border-b hover:bg-gray-50 transition">
+                <td className="py-4 px-6">{product.id}</td>
                 <td className="py-4 px-6 flex items-center gap-4">
                   <img
                     src={product.thumbnail || product.images?.[0]}
