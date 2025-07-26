@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import Navbar from '@/components/Navbar';
 import { useCheckoutStore } from '@/store/checkoutStore';
 
 interface Product {
@@ -92,6 +93,7 @@ export default function ProductDetailPage() {
   }
 
   return (
+    <><Navbar></Navbar>
     <div className="max-w-5xl mx-auto px-6 py-12">
       <div className="grid md:grid-cols-2 gap-10 items-start">
         {/* Left: Images */}
@@ -176,5 +178,6 @@ export default function ProductDetailPage() {
         </Card>
       </div>
     </div>
+    </>
   );
 }

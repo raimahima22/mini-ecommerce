@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useCheckoutStore } from "@/store/checkoutStore";
 import { useRouter } from 'next/navigation';
-
+import Navbar from '@/components/Navbar';
 export default function CheckoutPage() {
   const { clearCart } = useCartStore();
   const router = useRouter();
@@ -28,6 +28,7 @@ export default function CheckoutPage() {
   };
 
   return (
+    <><Navbar></Navbar>
     <div className="max-w-4xl mx-auto py-12 px-4 md:px-6 space-y-8">
       <h1 className="text-3xl font-bold text-center text-gray-800">Checkout</h1>
 
@@ -104,5 +105,6 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
+    </>
   );
 } 

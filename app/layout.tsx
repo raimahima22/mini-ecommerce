@@ -18,10 +18,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
     <html lang="en">
       <body className={`${inter.className} flex flex-col min-h-screen`}>
-        <Navbar />
+        {/* <Navbar /> */}
         <Toaster position="top-right" richColors />
         
         {/* Main content should grow to push footer down */}

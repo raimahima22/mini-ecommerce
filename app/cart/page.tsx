@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import Navbar from "@/components/Navbar";
 import { useCheckoutStore } from "@/store/checkoutStore";
 
 export default function CartPage() {
@@ -43,6 +44,8 @@ export default function CartPage() {
   };
 
   return (
+  <>
+  <Navbar/>
     <div className="max-w-4xl mx-auto px-4 py-12 space-y-8">
       <h1 className="text-3xl font-bold">Your Cart</h1>
 
@@ -112,5 +115,6 @@ export default function CartPage() {
         </>
       )}
     </div>
+    </>
   );
 }

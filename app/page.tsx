@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useProductStore } from '@/store/productStore';
 import HeroSection from '@/components/HeroSection';
-
+import Navbar from '@/components/Navbar';
 interface Product {
   id: string;
   title: string;
@@ -47,6 +47,7 @@ export default function Home() {
       : products.filter((product) => product.category === selectedCategory);
 
   return (
+    <><Navbar></Navbar>
     <main className="px-4 md:px-12 py-8 max-w-7xl mx-auto">
       <HeroSection />
 
@@ -122,5 +123,6 @@ export default function Home() {
         </section>
       </div>
     </main>
+    </>
   );
 }
