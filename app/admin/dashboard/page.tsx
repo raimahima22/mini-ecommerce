@@ -86,7 +86,7 @@ export default function DashboardPage() {
           <CircleUser className="w-5 h-5 text-blue-600" />
           <div className="text-sm">
             <p className="text-xs text-muted-foreground">Welcome Back</p>
-            <p className="font-medium">Tommy Style</p>
+            <p className="font-medium">Admin</p>
           </div>
         </div>
       </div>

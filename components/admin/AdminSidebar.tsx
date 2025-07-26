@@ -36,7 +36,7 @@ export default function AdminSidebar() {
       {/* Logo and App Name */}
       <div className="mb-8 flex items-center space-x-2">
         <Image src={Logo} alt="Logo" width={32} height={32} />
-        <span className="text-xl font-bold">Shop Smart</span>
+        <span className=" font-bold">Shop Smart</span>
       </div>
 
       {/* Navigation */}
