@@ -8,6 +8,7 @@ import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import { useCheckoutStore } from "@/store/checkoutStore";
 import Image from "next/image";
+import { ShoppingCart } from "lucide-react";
 
 export default function CartPage() {
   const { cart, updateQuantity, removeFromCart } = useCartStore();
@@ -52,13 +53,7 @@ export default function CartPage() {
 
         {cart.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center text-gray-500 space-y-4">
-            <Image
-              src="/empty-cart.svg" // optional illustrative placeholder
-              alt="Empty Cart"
-              width={200}
-              height={200}
-              className="opacity-80"
-            />
+          <ShoppingCart className="w-16 h-16 opacity-80" />
             <p className="text-lg">Your cart is empty.</p>
           </div>
         ) : (
