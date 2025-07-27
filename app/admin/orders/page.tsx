@@ -20,6 +20,8 @@ type Order = {
   address: string;
   date: string;
   status: "Complete" | "Pending" | "Canceled";
+  customerName: string;
+  customerImage: string;
 };
 
 const ITEMS_PER_PAGE = 10;
@@ -29,30 +31,52 @@ export default function OrdersPage() {
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [tab, setTab] = useState<"All" | "Complete" | "Pending" | "Canceled">("All");
-  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
+  const [tab, setTab] = useState<"All" | "Complete" | "Pending" | "Canceled">(
+    "All"
+  );
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
+    null,
+    null,
+  ]);
   const [startDate, endDate] = dateRange;
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch(
-          "https://api.freeapi.app/api/v1/public/randomproducts?page=1&limit=50&inc=category%252Cprice%252Cthumbnail%252Cimages%252Ctitle%252Cid"
-        );
-        const json = await res.json();
-        const products = json.data.data;
+        const [productsRes, usersRes] = await Promise.all([
+          fetch(
+            "https://api.freeapi.app/api/v1/public/randomproducts?page=1&limit=50&inc=category%252Cprice%252Cthumbnail%252Cimages%252Ctitle%252Cid"
+          ),
+          fetch(
+            "https://api.freeapi.app/api/v1/public/randomusers?page=1&limit=50"
+          ),
+        ]);
+
+        const productsJson = await productsRes.json();
+        const usersJson = await usersRes.json();
+
+        const products = productsJson.data.data;
+        const users = usersJson.data.data;
 
         const statuses = ["Complete", "Pending", "Canceled"];
-        const fakeOrders = products.map((product: Product, i: number): Order => {
-          const day = (i % 30) + 1;
-          return {
-            id: i + 1,
-            product,
-            address: `${i * 57 + 100} Example St, City ${i + 1}`,
-            date: `2021-04-${day.toString().padStart(2, "0")}`,
-            status: statuses[i % statuses.length] as Order["status"],
-          };
-        });
+        const fakeOrders: Order[] = products.map(
+          (product: Product, i: number) => {
+            const user = users[i % users.length];
+            const fullName = `${user.name.first} ${user.name.last}`;
+            const image = user.picture.thumbnail;
+            const day = (i % 30) + 1;
+
+            return {
+              id: i + 1,
+              product,
+              customerName: fullName,
+              customerImage: image,
+              address: `${i * 57 + 100} Example St, City ${i + 1}`,
+              date: `2021-04-${day.toString().padStart(2, "0")}`,
+              status: statuses[i % statuses.length] as Order["status"],
+            };
+          }
+        );
 
         setOrders(fakeOrders);
       } catch (err) {
@@ -123,6 +147,7 @@ export default function OrdersPage() {
             <tr>
               <th className="px-4 py-3 text-left">#</th>
               <th className="px-4 py-3 text-left">Product</th>
+              <th className="px-4 py-3 text-left">Customer</th>
               <th className="px-4 py-3 text-left">Address</th>
               <th className="px-4 py-3 text-left">Date</th>
               <th className="px-4 py-3 text-left">Price</th>
@@ -141,6 +166,17 @@ export default function OrdersPage() {
                   />
                   <span className="font-medium">{order.product.title}</span>
                 </td>
+                <td className="px-4 py-4">
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={order.customerImage}
+                      alt={order.customerName}
+                      className="w-8 h-8 rounded-full object-cover border border-gray-300"
+                    />
+                    <span>{order.customerName}</span>
+                  </div>
+                </td>
+
                 <td className="px-4 py-4">{order.address}</td>
                 <td className="px-4 py-4">{order.date}</td>
                 <td className="px-4 py-4">${order.product.price.toFixed(2)}</td>

@@ -35,7 +35,7 @@ export default function Navbar() {
 
         <nav className="space-x-6 flex items-center">
           <Link href="/" className="text-sm text-gray-600 hover:text-gray-900">Home</Link>
-          <Link href="/about" className="text-sm text-gray-600 hover:text-gray-900">About</Link>
+          {/* <Link href="/about" className="text-sm text-gray-600 hover:text-gray-900">About</Link> */}
           
           
           {/* Cart Icon */}

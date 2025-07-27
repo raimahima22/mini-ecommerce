@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import Logo from "@/assets/logo.png"
+import Logo from "@/assets/logo.png";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useAdminAuthStore } from "@/store/admin/adminAuthStore";
@@ -16,10 +16,14 @@ import {
 } from "lucide-react"; // Add Lucide icons
 
 const navItems = [
-  { label: "Dashboard", href: "/admin/dashboard", icon: <LayoutDashboard size={18} /> },
+  {
+    label: "Dashboard",
+    href: "/admin/dashboard",
+    icon: <LayoutDashboard size={18} />,
+  },
   { label: "Products", href: "/admin/products", icon: <Package size={18} /> },
   { label: "Orders", href: "/admin/orders", icon: <ShoppingCart size={18} /> },
-   { label: "Customer", href: "/admin/customer", icon: <Users size={18} /> },
+  { label: "Customer", href: "/admin/customer", icon: <Users size={18} /> },
 ];
 
 export default function AdminSidebar() {
@@ -30,7 +34,7 @@ export default function AdminSidebar() {
   function handleLogout() {
     logout();
     toast.success("Logged out successfully");
-    router.push("/admin/login");
+    router.push("/");
   }
 
   return (
@@ -60,7 +64,11 @@ export default function AdminSidebar() {
       </nav>
 
       {/* Logout Button */}
-      <Button variant="outline" onClick={handleLogout} className="mt-4 flex items-center space-x-2">
+      <Button
+        variant="outline"
+        onClick={handleLogout}
+        className="mt-8 self-start flex items-center space-x-2"
+      >
         <LogOut size={18} />
         <span>Logout</span>
       </Button>
